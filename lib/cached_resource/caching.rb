@@ -8,6 +8,10 @@ module CachedResource
       class << self
         alias_method_chain :find, :cache
       end
+      
+      def clear_cache
+        self.class.clear_cache(cache_key)
+      end
     end
 
     module ClassMethods
@@ -18,13 +22,17 @@ module CachedResource
         should_reload = arguments.last.delete(:reload) || !cached_resource.enabled
         arguments.pop if arguments.last.empty?
         key = cache_key(arguments)
-
+        
         should_reload ? find_via_reload(key, *arguments) : find_via_cache(key, *arguments)
       end
 
       # Clear the cache.
-      def clear_cache
-        cache_clear
+      def clear_cache(key = nil)
+        if key.nil?
+          cache_clear
+        else
+          cache_delete(key)
+        end
       end
 
       private
@@ -91,6 +99,7 @@ module CachedResource
           end
         end
         object && cached_resource.logger.info("#{CachedResource::Configuration::LOGGER_PREFIX} READ #{key}")
+        object.cache_key = key unless object.nil?
         object
       end
 
@@ -105,6 +114,12 @@ module CachedResource
       def cache_clear
         cached_resource.cache.clear.tap do |result|
           cached_resource.logger.info("#{CachedResource::Configuration::LOGGER_PREFIX} CLEAR")
+        end
+      end
+      
+      def cache_delete(key)
+        cached_resource.cache.delete(key).tap do |result|
+          cached_resource.logger.info("#{CachedResource::Configuration::LOGGER_PREFIX} DELETE #{key}")
         end
       end
 
