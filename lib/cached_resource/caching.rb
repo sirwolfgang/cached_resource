@@ -99,7 +99,7 @@ module CachedResource
           end
         end
         object && cached_resource.logger.info("#{CachedResource::Configuration::LOGGER_PREFIX} READ #{key}")
-        object.cache_key = key unless object.nil?
+        object.cache_key = key unless object.nil? or object.kind_of?(Array)
         object
       end
 
