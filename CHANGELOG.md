@@ -1,0 +1,1 @@
+- now used activesupport::cache's `fetch` to simplify read/write operations 
