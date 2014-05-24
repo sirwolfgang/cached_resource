@@ -24,6 +24,7 @@ module CachedResource
         reload = arguments.last.delete(:reload)
         arguments.pop if arguments.last.empty?
         
+        cached_resource.logger.info("#{CachedResource::Configuration::LOGGER_PREFIX} ARGS #{arguments}")
         fetch(*arguments, reload)
       end
       
@@ -44,10 +45,24 @@ module CachedResource
           object
         end
         
+        update_with_collection(cached_object) if cached_resource.collection_synchronize and cached_object.is_a? ActiveResource::Collection
+        
         cached_object && cached_resource.logger.info("#{CachedResource::Configuration::LOGGER_PREFIX} READ #{key}")
         cached_object
       end
+        
+      def update(key, object)
+        cached_object = cached_resource.cache.write(key, object, expires_in: cached_resource.generate_ttl)
+        cached_object && cached_resource.logger.info("#{CachedResource::Configuration::LOGGER_PREFIX} WRITE #{key}")
+      end
 
+      def update_with_collection(collection)
+        collection.each do |object|
+          # TODO:: See about allowing custom/non id based primary_keys, most likly will have to manually set much like collection argument
+          update(build_key(object.id), object)
+        end
+      end
+      
       def build_key(*arguments)
         "#{name.parameterize.gsub("-", "/")}/#{arguments.join('/')}".downcase.delete(' ')
       end

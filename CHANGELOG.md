@@ -1,3 +1,4 @@
 - now uses activesupport::cache's `fetch` to simplify read/write operations 
 - now preserves the use of activeresources collection objects, allowing drop in place useage
 - disabling `cached_resource` now behaves as one would exspect, and no longer caching requests 
+- no longer uses augment 
