@@ -29,6 +29,8 @@ module CachedResource
       
       def clear_cache
         # Clear Collection Cache
+        # Note:: The current usage of `Class.clear_cache` implies the clearing of class based cache, not entire module cache; Which is the current implementation
+        cached_resource.cache.clear && cached_resource.logger.info("#{CachedResource::Configuration::LOGGER_PREFIX} CLEAR")
       end
       
       private
@@ -39,6 +41,7 @@ module CachedResource
         cached_object = cached_resource.cache.fetch(key, force: reload, expires_in: cached_resource.generate_ttl) do
           object = find_without_cache(*arguments)
           object && cached_resource.logger.info("#{CachedResource::Configuration::LOGGER_PREFIX} WRITE #{key}")
+          object
         end
         
         cached_object && cached_resource.logger.info("#{CachedResource::Configuration::LOGGER_PREFIX} READ #{key}")
