@@ -24,7 +24,7 @@ module CachedResource
 
         cached_resource.logger.info("#{CachedResource::Configuration::LOGGER_PREFIX} ARGS #{arguments}")
 
-        if cached_resource.collection_synchronize && not(is_collection?(*arguments))
+        if cached_resource.collection_synchronize && not(is_collection?(arguments[0]))
           fetch_via_collection(*arguments, reload)
         else 
           fetch(*arguments, reload)
@@ -75,7 +75,6 @@ module CachedResource
       end
 
       def is_collection?(*arguments)
-        cached_resource.logger.info("#{arguments} == #{cached_resource.collection_arguments}")
         arguments == cached_resource.collection_arguments
       end
 
