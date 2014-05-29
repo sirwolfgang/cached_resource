@@ -1,6 +1,96 @@
 require 'spec_helper'
 
 describe CachedResource do
+  
+  before(:each) do
+    class Resource < ActiveResource::Base
+      self.site = "http://api.test.com"
+      cached_resource
+    end
+  
+    @resource_one = Resource.new(id: 1, string: 'One')
+    @resource_two = Resource.new(id: 2, string: 'Two')
+    @resources = [@resource_one, @resource_two]
+    
+    ActiveResource::HttpMock.reset!
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get   "/resources.json",   {}, @resources.to_json
+      mock.get   "/resources/1.json", {}, @resource_one.to_json
+      mock.get   "/resources/2.json", {}, @resource_two.to_json
+    end
+  end
+    
+  after(:each) do
+    Resource.cached_resource.cache.clear
+    Object.send(:remove_const, :Resource)
+  end
+  
+  context 'when enabled' do
+    describe '.find' do
+      
+      it 'returns a resource' do
+        expect(Resource.find(1)).to eq(@resource_one)
+      end
+      
+      it 'writes resource to cache' do
+        resource = Resource.find(1)
+        expect(Resource.cached_resource.cache.read('resource/1').to_json).to eq(resource.to_json)
+      end
+      
+      it 'reads a resource from cache ' do
+        Resource.find(1)
+        Resource.find(1)
+        expect(ActiveResource::HttpMock.requests.length).to eq(1)
+      end
+      
+      it 'reloads a resource\'s cache' do
+        Resource.find(1)
+        Resource.find(1, reload: true)
+        expect(ActiveResource::HttpMock.requests.length).to eq(2)
+      end
+
+    end
+    describe'.all' do
+      
+      it 'returns a collection' do
+        expect(Resource.all.to_json).to eq(@resources.to_json)
+      end
+      
+      it 'writes a collection to cache' do
+        collection = Resource.all
+        expect(Resource.cached_resource.cache.read('resource/all').to_json).to eq(collection.to_json)
+      end
+      
+      it 'reads a collection from cache ' do
+        Resource.all
+        Resource.all
+        expect(ActiveResource::HttpMock.requests.length).to eq(1)
+      end
+      
+      it 'reloads a collection\'s cache' do
+        Resource.all
+        Resource.find(:all, reload: true)
+        expect(ActiveResource::HttpMock.requests.length).to eq(2)
+      end
+
+    end
+  end
+  
+  context 'when disabled' do
+    describe '.find' do
+      # TODO
+    end
+    describe'.all' do
+      # TODO
+    end
+  end
+  
+end
+
+
+
+=begin
+describe CachedResource do
 
   before(:each) do
     class Thing < ActiveResource::Base
@@ -484,3 +574,4 @@ describe CachedResource do
     end
   end
 end
+=end
