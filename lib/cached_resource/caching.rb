@@ -5,34 +5,35 @@ module CachedResource
     class << self
       def fetch(*arguments, reload, &block)
         key = build_key(*arguments)
-        #metadata = Metadata.fetch(name.parameterize)
+        metadata = nil
 
         cached_object = CACHE_STORE.fetch(key, force: reload) do
           object = block.call
+          metadata = Metadata.fetch(object.class.name.parameterize)
 
          # if cached_resource.collection_synchronize and object.is_a? ActiveResource::Collection
          #   update_with_collection(object)
          #   metadata.add_collection(key)
          # else
-         #   metadata.add_instance(key, nil)
+           metadata.add_instance(key, nil)
          # end
-
+           metadata.save
+      
           object && CachedResource::log("WRITE #{key}")
           object
         end
 
-        #metadata.save
         cached_object && CachedResource::log("READ #{key}")
         cached_object
       end
 
       def fetch_with_collection(*arguments, reload)
-        fetch([:all], true) unless CACHE.exist?(build_key(*arguments)) || reload
+        fetch([:all], true) unless CACHE_STORE.exist?(build_key(*arguments)) || reload
         fetch(*arguments, false)
       end
 
       def update(key, object)
-        cached_object = CACHE.write(key, object)
+        cached_object = CACHE_STORE.write(key, object)
         cached_object && CachedResource::log("WRITE #{key}")
       end
 
