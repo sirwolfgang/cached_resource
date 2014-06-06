@@ -1,36 +1,38 @@
 module CachedResource
-  # The Model module is included in ActiveResource::Base and
-  # provides methods to enable caching and manipulate the caching
-  # configuration
+  LOGGER = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
+  
+  class << self
+    def log(message)
+      LOGGER.tagged('cached_resource') { LOGGER.info(message) }
+    end
+  end
+  
   module Model
     extend ActiveSupport::Concern
 
     included do
       class << self
-        attr_accessor :cached_resource
-
-        # Initialize cached resource or retrieve the current cached resource configuration.
-        def cached_resource(options={})
-          defined?(@cached_resource) && @cached_resource || setup_cached_resource!(options)
-        end
-
-        # Set up cached resource for this class by creating a new configuration
-        # and establishing the necessary methods.
-        def setup_cached_resource!(options)
-          @cached_resource = CachedResource::Configuration.new(options)
-          send :include, CachedResource::Caching
-          @cached_resource
-        end
+        alias_method_chain :find, :cache
       end
     end
 
     module ClassMethods
-      # Copy a superclass's cached resource configuration if
-      # it's defined.  Unfortunately, this means that any subclass
-      # that wants an independent configuration will need to execute:
-      # self.cached_resource = CachedResource::Configuration.new(options={})
-      def inherited(child)
-        child.cached_resource = self.cached_resource if defined?(@cached_resource)
+      def find_with_cache(*arguments)
+        #return find_without_cache(*arguments) #unless cached_resource.enabled
+
+        arguments << {} unless arguments.last.is_a?(Hash)
+        reload = arguments.last.delete(:reload)
+        arguments.pop if arguments.last.empty?
+        
+        CachedResource::log("ARGS #{arguments}")
+        
+        #if cached_resource.collection_synchronize && not(is_collection?(arguments[0]))
+        #  Cache.fetch_via_collection(*arguments, reload)
+        #else 
+        Cache.fetch(*arguments, reload) do
+          find_without_cache(*arguments)
+        end
+        #end
       end
     end
 

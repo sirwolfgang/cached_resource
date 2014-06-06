@@ -1,73 +1,49 @@
 module CachedResource
-  module Caching
-    extend ActiveSupport::Concern
-
-    included do
-      class << self
-        alias_method_chain :find, :cache
-      end
-
-      def clear_cache
-        # Clear Instance Cache
-      end
-    end
-
-
-    module ClassMethods
-
-      def find_with_cache(*arguments)
-        return find_without_cache(*arguments) unless cached_resource.enabled
-
-        arguments << {} unless arguments.last.is_a?(Hash)
-        reload = arguments.last.delete(:reload)
-        arguments.pop if arguments.last.empty?
-
-        cached_resource.logger.info("#{CachedResource::Configuration::LOGGER_PREFIX} ARGS #{arguments}")
-
-        if cached_resource.collection_synchronize && not(is_collection?(arguments[0]))
-          fetch_via_collection(*arguments, reload)
-        else 
-          fetch(*arguments, reload)
-        end
-      end
-
-      def clear_cache
-        # Clear Collection Cache
-        # Note:: The current usage of `Class.clear_cache` implies the clearing of class based cache, not entire module cache; Which is the current implementation
-        cached_resource.cache.clear && cached_resource.logger.info("#{CachedResource::Configuration::LOGGER_PREFIX} CLEAR")
-      end
-
-      private
-
-      def fetch(*arguments, reload)
+  class Cache
+    CACHE_STORE = ActiveSupport::Cache::MemoryStore.new
+    
+    class << self
+      def fetch(*arguments, reload, &block)
         key = build_key(*arguments)
+        #metadata = Metadata.fetch(name.parameterize)
 
-        cached_object = cached_resource.cache.fetch(key, force: reload, expires_in: cached_resource.generate_ttl) do
-          object = find_without_cache(*arguments)
-          update_with_collection(object) if cached_resource.collection_synchronize and object.is_a? ActiveResource::Collection
-          object && cached_resource.logger.info("#{CachedResource::Configuration::LOGGER_PREFIX} WRITE #{key}")
+        cached_object = CACHE_STORE.fetch(key, force: reload) do
+          object = block.call
+
+         # if cached_resource.collection_synchronize and object.is_a? ActiveResource::Collection
+         #   update_with_collection(object)
+         #   metadata.add_collection(key)
+         # else
+         #   metadata.add_instance(key, nil)
+         # end
+
+          object && CachedResource::log("WRITE #{key}")
           object
         end
 
-        cached_object && cached_resource.logger.info("#{CachedResource::Configuration::LOGGER_PREFIX} READ #{key}")
+        #metadata.save
+        cached_object && CachedResource::log("READ #{key}")
         cached_object
       end
 
-      def fetch_via_collection(*arguments, reload)
-        fetch(*cached_resource.collection_arguments, true) unless cached_resource.cache.exist?(build_key(*arguments)) || reload
+      def fetch_with_collection(*arguments, reload)
+        fetch([:all], true) unless CACHE.exist?(build_key(*arguments)) || reload
         fetch(*arguments, false)
       end
 
       def update(key, object)
-        cached_object = cached_resource.cache.write(key, object, expires_in: cached_resource.generate_ttl)
-        cached_object && cached_resource.logger.info("#{CachedResource::Configuration::LOGGER_PREFIX} WRITE #{key}")
+        cached_object = CACHE.write(key, object)
+        cached_object && CachedResource::log("WRITE #{key}")
       end
 
       def update_with_collection(collection)
         collection.each do |object|
-          # TODO:: See about allowing custom/non id based primary_keys, most likly will have to manually set much like collection argument
           update(build_key(object.id), object)
         end
+      end
+      
+      def clear
+        CACHE_STORE.clear && CachedResource::log("CLEAR")
       end
 
       def build_key(*arguments)
@@ -75,9 +51,8 @@ module CachedResource
       end
 
       def is_collection?(*arguments)
-        arguments == cached_resource.collection_arguments
+        arguments == [:all]
       end
-
     end
   end
 end
