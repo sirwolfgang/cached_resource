@@ -1,3 +1,4 @@
 module CachedResource
-  VERSION = "4.0.0"
+  VERSION = File.read(
+    File.expand_path('../../../VERSION', __FILE__)).chomp
 end
