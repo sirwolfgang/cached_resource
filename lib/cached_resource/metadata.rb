@@ -37,12 +37,14 @@ module CachedResource
         def add_collection(collection_key)
           self.collections << collection_key
           self.collections = self.collections.uniq
+          self
         end
 
         def add_instance(instance_key, collection_key)
           parent_collections = self.instances[instance_key] || []
           parent_collections << collection_key unless collection_key.nil?
           self.instances[instance_key] = parent_collections.uniq
+          self
         end
       end
     end

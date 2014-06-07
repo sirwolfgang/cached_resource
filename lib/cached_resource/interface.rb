@@ -21,7 +21,7 @@ module CachedResource
         #if cached_resource.collection_synchronize && not(is_collection?(arguments[0]))
         #  Cache.fetch_via_collection(*arguments, reload)
         #else 
-        CachedResource::Private::Cache.fetch(*arguments, reload) do
+        CachedResource::Private::Cache.fetch(name, *arguments, reload) do
           find_without_cache(*arguments)
         end
         #end
