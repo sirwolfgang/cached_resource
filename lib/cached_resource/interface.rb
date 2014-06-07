@@ -1,6 +1,16 @@
 module CachedResource
+  class << self
+    def clear_cache
+      CachedResource::Private::Cache.clear
+    end
+  end
+  
   module Model
     extend ActiveSupport::Concern
+    
+    def clear_cache
+      CachedResource::Private::Cache.clear_instance(self)
+    end
 
     included do
       class << self
@@ -18,6 +28,10 @@ module CachedResource
         CachedResource::Private::Cache.fetch(name, *arguments, reload) do
           find_without_cache(*arguments)
         end
+      end
+      
+      def clear_cache
+        CachedResource::Private::Cache.clear_class(name)
       end
     end
   end
