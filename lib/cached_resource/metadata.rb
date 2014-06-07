@@ -23,21 +23,21 @@ module CachedResource
 
         def save
           object = CACHE_STORE.write(class_name, self)
-          CachedResource::Private.log("METADATA #{self.to_json}")
+          CachedResource::Private.log("METADATA #{to_json}")
           object && CachedResource::Private.log("WRITE METADATA #{class_name}")
         end
 
         def add_collection(collection_key)
           add_instance(collection_key)
-          self.collections << collection_key
-          self.collections = self.collections.uniq
+          collections << collection_key
+          self.collections = collections.uniq
           self
         end
 
         def add_instance(instance_key, collection_key = nil)
-          parent_collections = self.instances[instance_key] || []
+          parent_collections = instances[instance_key] || []
           parent_collections << collection_key unless collection_key.nil?
-          self.instances[instance_key] = parent_collections.uniq
+          instances[instance_key] = parent_collections.uniq
           self
         end
       end

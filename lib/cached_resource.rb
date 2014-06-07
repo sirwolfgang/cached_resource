@@ -7,6 +7,8 @@ require 'cached_resource/metadata'
 require 'cached_resource/caching'
 require 'cached_resource/version'
 
-class ActiveResource::Base
-  include CachedResource::Model
+module ActiveResource
+  class Base
+    include CachedResource::Model
+  end
 end
