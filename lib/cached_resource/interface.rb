@@ -18,9 +18,7 @@ module CachedResource
         CachedResource::Private::Cache.fetch(name, *arguments, reload) do
           find_without_cache(*arguments)
         end
-        #end
       end
     end
-
   end
 end
