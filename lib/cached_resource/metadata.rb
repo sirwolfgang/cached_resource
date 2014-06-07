@@ -4,13 +4,6 @@ module CachedResource
       class Metadata
         attr_accessor :class_name, :instances, :collections
 
-        # {
-        #   collections: ['/all'],
-        #   instances: {
-        #     '/1' => ['/all']
-        #   }
-        # }
-
         def initialize(klass)
           self.class_name = klass.to_s
           self.instances = {}

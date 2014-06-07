@@ -22,11 +22,6 @@ module CachedResource
           cached_object
         end
 
-        def update(key, object)
-          cached_object = CACHE_STORE.write(key, object)
-          cached_object && CachedResource::Private.log("WRITE #{key}")
-        end
-
         def clear
           CACHE_STORE.clear && CachedResource::Private.log("CLEAR")
         end
