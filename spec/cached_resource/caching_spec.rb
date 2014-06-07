@@ -5,7 +5,6 @@ describe CachedResource do
   before(:each) do
     class Resource < ActiveResource::Base
       self.site = "http://api.test.com"
-      #cached_resource
     end
   
     @resource_one = Resource.new(id: 1, string: 'One')
@@ -21,7 +20,7 @@ describe CachedResource do
   end
     
   after(:each) do
-    CachedResource::Cache.clear
+    CachedResource::Private::Cache.clear
     Object.send(:remove_const, :Resource)
   end
   
