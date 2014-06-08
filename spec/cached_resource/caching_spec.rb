@@ -31,10 +31,14 @@ describe CachedResource do
   end
 
   after(:each) do
-    CachedResource::Private::Cache.clear
+    CachedResourceLibrary::Cache.clear
   end
 
   context 'when enabled' do
+    before(:each) do
+      CachedResource::configuration.enable
+    end
+    
     describe '.find' do
 
       it 'returns a resource' do
@@ -117,11 +121,68 @@ describe CachedResource do
   end
 
   context 'when disabled' do
+    
+    before(:each) do
+      CachedResource::configuration.disable
+    end
+    
     describe '.find' do
-      # TODO
+
+      it 'returns a resource' do
+        expect(Red.find(1)).to eq(@red_one)
+        expect(Red.find(2)).to eq(@red_two)
+      end
+
+      it 'does not cache a resource' do
+        Red.find(1)
+        Red.find(1)
+        expect(ActiveResource::HttpMock.requests.length).to eq(2)
+      end
+
     end
     describe '.all' do
-      # TODO
+
+      it 'returns a collection' do
+        expect(Red.all.to_json).to eq(@reds.to_json)
+      end
+
+      it 'does not cache a collection' do
+        Red.all
+        Red.all
+        expect(ActiveResource::HttpMock.requests.length).to eq(2)
+      end
+
     end
+  end
+  context 'when configuring' do
+    
+    it 'sets global settings' do
+      Red.find(1)
+      Red.find(1)
+      expect(ActiveResource::HttpMock.requests.length).to eq(2)
+      
+      CachedResource.enable
+      expect(CachedResource.enabled?).to eq(true)
+      
+      Red.find(1)
+      Red.find(1)
+      expect(ActiveResource::HttpMock.requests.length).to eq(3)
+    end
+    
+    it 'allows class to overide settings' do
+      CachedResource.disable
+      expect(CachedResource.enabled?).to eq(false)
+      
+      Red.enable_cache
+      expect(Red.cache_enabled?).to eq(true)
+      
+      Red.find(1)
+      Red.find(1)
+      
+      Blu.find(1)
+      Blu.find(1)
+      expect(ActiveResource::HttpMock.requests.length).to eq(3)
+    end
+    
   end
 end

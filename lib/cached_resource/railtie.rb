@@ -1,8 +1,8 @@
-module CachedResource
+module CachedResourceLibrary
   class Railtie < Rails::Railtie
     config.after_initialize do
-      CachedResource::Private::CACHE_STORE = Rails.cache
-      CachedResource::Private::LOGGER = Rails.logger
+      CachedResourceLibrary::CACHE_STORE = Rails.cache
+      CachedResourceLibrary::LOGGER = Rails.logger
     end
   end
 end
