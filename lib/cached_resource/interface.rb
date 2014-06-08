@@ -9,11 +9,11 @@ module CachedResource
     end
     
     def enable
-      CachedResourceLibrary::global_configuration.enable
+      CachedResourceLibrary::global_configuration.enabled = true
     end
     
     def disable
-      CachedResourceLibrary::global_configuration.disable
+      CachedResourceLibrary::global_configuration.enabled = false
     end
     
     def enabled?
@@ -41,16 +41,24 @@ module CachedResource
     if self.class == Class
       @configuration = configuration
     else
-      raise 'Can not set configuration for instance!'
+      raise 'Can\'t set configuration for instance!'
     end
   end
     
   def enable_cache
-    cache_configuration.enable
+    if self.class == Class
+      cache_configuration.enabled = true
+    else
+      raise 'Can\'t set configuration for instance!'
+    end
   end
     
   def disable_cache
-    cache_configuration.disable
+    if self.class == Class
+      cache_configuration.enabled = false
+    else
+      raise 'Can\'t set configuration for instance!'
+    end
   end
     
   def cache_enabled?

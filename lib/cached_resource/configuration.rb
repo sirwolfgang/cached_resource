@@ -11,14 +11,6 @@ module CachedResource
       @collection_arguments = options[:collection_arguments]
     end
 
-    def enable
-      self.enabled = true
-    end
-
-    def disable
-      self.enabled = false
-    end
-
     def enabled?
       return enabled unless enabled.nil?
       CachedResourceLibrary::global_configuration.enabled
