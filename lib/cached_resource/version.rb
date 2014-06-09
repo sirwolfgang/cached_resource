@@ -1,3 +1,4 @@
+# lib/cached_resource/version.rb
 module CachedResource
   VERSION = File.read(
     File.expand_path('../../../VERSION', __FILE__)).chomp

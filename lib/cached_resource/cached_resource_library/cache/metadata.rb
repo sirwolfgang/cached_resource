@@ -1,3 +1,4 @@
+# lib/cached_resource_library/cache/metadata.rb
 module CachedResourceLibrary
   class Cache
     class Metadata
@@ -29,7 +30,7 @@ module CachedResourceLibrary
       def add_collection(collection_key)
         add_instance(collection_key)
         collections << collection_key
-        self.collections = collections.uniq
+        collections.uniq!
         self
       end
 
@@ -41,7 +42,7 @@ module CachedResourceLibrary
       end
 
       def collection?(key)
-        self.collections.include?(key)
+        collections.include?(key)
       end
     end
   end

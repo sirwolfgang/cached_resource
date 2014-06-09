@@ -1,3 +1,4 @@
+# lib/cached_resource_library/railtie.rb
 module CachedResourceLibrary
   class Railtie < Rails::Railtie
     config.after_initialize do

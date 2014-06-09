@@ -1,3 +1,4 @@
+# lib/cached_resource_library/cache.rb
 module CachedResourceLibrary
   class Cache
     class << self
@@ -22,7 +23,9 @@ module CachedResourceLibrary
       end
 
       def fetch_with_collection(name, *arguments, reload, &block)
-        fetch(name, [:all], true, &block) unless CACHE_STORE.exist?(expand_cache_key([name] << arguments)) || reload                                                                                                                                             
+        unless CACHE_STORE.exist?(expand_cache_key([name] << arguments)) || reload
+          fetch(name, [:all], true, &block)
+        end
         fetch(name, *arguments, false, &block)
       end
 
