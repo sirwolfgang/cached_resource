@@ -36,7 +36,7 @@ describe CachedResource do
 
   context 'when enabled' do
     before(:each) do
-      CachedResource::configuration.enable
+      CachedResource::configuration.enabled = true
     end
     
     describe '.find' do
@@ -123,7 +123,7 @@ describe CachedResource do
   context 'when disabled' do
     
     before(:each) do
-      CachedResource::configuration.disable
+      CachedResource::configuration.enabled = false
     end
     
     describe '.find' do

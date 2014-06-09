@@ -88,16 +88,16 @@ module CachedResourceInterface
         arguments.pop if arguments.last.empty?
 
         CachedResourceLibrary.log("ARGS #{arguments}")
-
-        #if CachedResourceLibrary::Cache.collection?(name, *arguments)
+        
+        if CachedResourceLibrary::Cache.collection?(name, *arguments) && cache_configuration.collection_synchronization?
+          CachedResourceLibrary::Cache.fetch_with_collection(name, *arguments, reload) do
+            find_without_cache(*arguments)
+          end
+        else
           CachedResourceLibrary::Cache.fetch(name, *arguments, reload) do
             find_without_cache(*arguments)
           end
-        #else
-        #  CachedResourceLibrary::Cache.fetch_with_collection(name, *arguments, reload) do
-        #    find_without_cache(*arguments)
-        #  end
-        #end
+        end
       end
     end
   end
