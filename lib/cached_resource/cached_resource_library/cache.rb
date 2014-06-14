@@ -24,7 +24,7 @@ module CachedResourceLibrary
 
       def fetch_with_collection(name, *arguments, reload, &block)
         unless CACHE_STORE.exist?(expand_cache_key([name] << arguments)) || reload
-          fetch(name, [:all], true, &block)
+          collection = fetch(name, [CachedResourceLibrary::global_configuration.collection_arguments.first], true, &block)
         end
         fetch(name, *arguments, false, &block)
       end
@@ -51,7 +51,7 @@ module CachedResourceLibrary
       end
 
       def collection?(name, *arguments)
-        return true if [:all].include?(arguments.first)
+        return true if CachedResourceLibrary::global_configuration.collection_arguments.include?(arguments.first)
         Metadata.fetch(name).collection?(expand_cache_key([name] << arguments))
       end
     end

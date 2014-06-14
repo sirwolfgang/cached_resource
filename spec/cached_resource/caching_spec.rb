@@ -13,6 +13,7 @@ describe CachedResource do
 
     @red_one = Red.new(id: 1, string: 'One')
     @red_two = Red.new(id: 2, string: 'Two')
+    @red_thr = Red.new(id: 3, string: 'Thr')
     @reds = [@red_one, @red_two]
 
     @blu_one = Blu.new(id: 1, string: 'One')
@@ -24,6 +25,7 @@ describe CachedResource do
       mock.get '/reds.json',   {}, @reds.to_json
       mock.get '/reds/1.json', {}, @red_one.to_json
       mock.get '/reds/2.json', {}, @red_two.to_json
+      mock.get '/reds/3.json', {}, @red_thr.to_json
 
       mock.get '/blus.json',   {}, @blus.to_json
       mock.get '/blus/1.json', {}, @blu_one.to_json
@@ -181,4 +183,42 @@ describe CachedResource do
     end
 
   end
+  context 'when using collection_synchronization' do
+    
+    before(:all) do
+      CachedResource.configuration.collection_synchronization = true
+    end
+    
+    after(:all) do
+      CachedResource.configuration.collection_synchronization = false
+    end
+    
+    it 'caches instances from collection' do
+      Red.all
+
+      expect(Red.find(1)).to eq(@red_one)
+      expect(ActiveResource::HttpMock.requests.length).to eq(1)
+    end
+    
+    it 'fails over to the single instance request' do
+      expect(Red.find(3)).to eq(@red_thr)
+      expect(ActiveResource::HttpMock.requests.length).to eq(2)
+    end
+    
+    it 'uses collections to update instances' do
+      Red.find(1)
+      Red.find(2)
+      
+      expect(ActiveResource::HttpMock.requests.length).to eq(1)
+    end
+    
+    it 'uses metadata to delete parent cache' do
+      Red.find(1).clear_cache
+      Red.find(2)
+      Red.all
+      
+      expect(ActiveResource::HttpMock.requests.length).to eq(2)
+    end
+  end
+  
 end
