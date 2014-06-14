@@ -20,8 +20,7 @@ module CachedResourceLibrary
       end
 
       def save
-        object = CACHE_STORE.write(class_name, self)
-        CachedResourceLibrary.log("METADATA #{to_json}")
+        CACHE_STORE.write(class_name, self)
       end
 
       def add_collection(collection_key)
@@ -37,7 +36,7 @@ module CachedResourceLibrary
         instances[instance_key] = parent_collections.uniq
         self
       end
-      
+
       def parent_collections(instance_key)
         instances[instance_key]
       end

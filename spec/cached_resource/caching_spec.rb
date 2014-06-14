@@ -184,41 +184,41 @@ describe CachedResource do
 
   end
   context 'when using collection_synchronization' do
-    
+
     before(:all) do
       CachedResource.configuration.collection_synchronization = true
     end
-    
+
     after(:all) do
       CachedResource.configuration.collection_synchronization = false
     end
-    
+
     it 'caches instances from collection' do
       Red.all
 
       expect(Red.find(1)).to eq(@red_one)
       expect(ActiveResource::HttpMock.requests.length).to eq(1)
     end
-    
+
     it 'fails over to the single instance request' do
       expect(Red.find(3)).to eq(@red_thr)
       expect(ActiveResource::HttpMock.requests.length).to eq(2)
     end
-    
+
     it 'uses collections to update instances' do
       Red.find(1)
       Red.find(2)
-      
+
       expect(ActiveResource::HttpMock.requests.length).to eq(1)
     end
-    
+
     it 'uses metadata to delete parent cache' do
       Red.find(1).clear_cache
       Red.find(2)
       Red.all
-      
+
       expect(ActiveResource::HttpMock.requests.length).to eq(2)
     end
   end
-  
+
 end
