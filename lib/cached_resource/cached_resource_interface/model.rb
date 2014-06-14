@@ -22,12 +22,14 @@ module CachedResourceInterface
 
         CachedResourceLibrary.log("ARGS #{arguments}")
 
-        if CachedResourceLibrary::Cache.collection?(name, *arguments) && cache_configuration.collection_synchronization?
-          CachedResourceLibrary::Cache.fetch_with_collection(name, *arguments, reload) do
+        if !CachedResourceLibrary::Cache.collection?(name, *arguments) && cache_configuration.collection_synchronization?
+          CachedResourceLibrary::Cache.fetch_with_collection(name, *arguments, reload) do |arguments|
+            CachedResourceLibrary.log("HTTP REQUEST #{arguments}")
             find_without_cache(*arguments)
           end
         else
-          CachedResourceLibrary::Cache.fetch(name, *arguments, reload) do
+          CachedResourceLibrary::Cache.fetch(name, *arguments, reload) do |arguments|
+            CachedResourceLibrary.log("HTTP REQUEST #{arguments}")
             find_without_cache(*arguments)
           end
         end

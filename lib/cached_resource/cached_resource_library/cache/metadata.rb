@@ -13,18 +13,15 @@ module CachedResourceLibrary
       def self.fetch(klass)
         object = CACHE_STORE.fetch(klass.to_s) do
           object = Metadata.new(klass)
-          object && CachedResourceLibrary.log("WRITE METADATA #{klass}")
           object
         end
 
-        object && CachedResourceLibrary.log("READ METADATA #{klass}")
         object
       end
 
       def save
         object = CACHE_STORE.write(class_name, self)
         CachedResourceLibrary.log("METADATA #{to_json}")
-        object && CachedResourceLibrary.log("WRITE METADATA #{class_name}")
       end
 
       def add_collection(collection_key)
@@ -39,6 +36,10 @@ module CachedResourceLibrary
         parent_collections << collection_key unless collection_key.nil?
         instances[instance_key] = parent_collections.uniq
         self
+      end
+      
+      def parent_collections(instance_key)
+        instances[instance_key]
       end
 
       def collection?(key)
