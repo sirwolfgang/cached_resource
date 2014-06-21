@@ -61,7 +61,7 @@ module CachedResourceLibrary
           end
         end
 
-        CachedResourceLibrary.log("CLEAR #{object.class.name}-#{object.id}")
+        CachedResourceLibrary.log("CLEAR #{object.class.name}/#{object.id}")
       end
 
       def expand_cache_key(arguments)
