@@ -32,7 +32,7 @@ module CachedResourceLibrary
         object && CachedResourceLibrary.log("WRITE #{key}")
         object
       end
-      
+
       metadata.save
       cached_object && CachedResourceLibrary.log("READ #{key}")
       cached_object
@@ -77,7 +77,8 @@ module CachedResourceLibrary
     private
 
     def expand_cache_key(arguments)
-      ActiveSupport::Cache.expand_cache_key([klass_name] << arguments, 'cached_resource')
+      arguments = [klass_name] << arguments
+      ActiveSupport::Cache.expand_cache_key(arguments, 'cached_resource')
     end
   end
 end

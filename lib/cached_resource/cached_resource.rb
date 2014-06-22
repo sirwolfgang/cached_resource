@@ -28,9 +28,11 @@ module CachedResource
 
   def clear_cache
     if self.class == Class
-      CachedResourceLibrary::Cache.new(name, cache_configuration).clear_class
+      CachedResourceLibrary::Cache.new(name, cache_configuration)
+        .clear_class
     else
-      CachedResourceLibrary::Cache.new(self.class.name, cache_configuration).clear_instance(self)
+      CachedResourceLibrary::Cache.new(self.class.name, cache_configuration)
+        .clear_instance(self)
     end
   end
 
