@@ -2,7 +2,7 @@
 module CachedResourceLibrary
   @@global_configuration = CachedResource::Configuration.new(
     enabled: true,
-    collection_synchronize: false,
+    collection_synchronization: false,
     collection_arguments: [:all])
 
   @@logger = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
