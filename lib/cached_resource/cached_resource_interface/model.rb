@@ -20,17 +20,19 @@ module CachedResourceInterface
         reload = arguments.last.delete(:reload)
         arguments.pop if arguments.last.empty?
 
-        CachedResourceLibrary.log("Cache Request #{arguments}")
+        CachedResourceLibrary.log("Cache Request #{name}/#{arguments}")
 
         fetch_without_cache = proc do |request_arguments|
-          CachedResourceLibrary.log("HTTP Request #{request_arguments}")
+          CachedResourceLibrary.log("HTTP Request #{name}/#{request_arguments}")
           find_without_cache(*request_arguments)
         end
 
-        if !CachedResourceLibrary::Cache.collection?(name, *arguments) && cache_configuration.collection_synchronization?
-          CachedResourceLibrary::Cache.fetch_with_collection(name, *arguments, reload, &fetch_without_cache)
+        cache = CachedResourceLibrary::Cache.new(name, cache_configuration)
+
+        if !cache.collection?(*arguments) && cache_configuration.collection_synchronization?
+          cache.fetch_with_collection(*arguments, reload, &fetch_without_cache)
         else
-          CachedResourceLibrary::Cache.fetch(name, *arguments, reload, &fetch_without_cache)
+          cache.fetch(*arguments, reload, &fetch_without_cache)
         end
       end
     end
