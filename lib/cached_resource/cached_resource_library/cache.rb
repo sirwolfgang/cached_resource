@@ -70,7 +70,7 @@ module CachedResourceLibrary
     end
 
     def collection?(*arguments)
-      return true if configuration.collection_arguments == arguments
+      return true if configuration.observed_collection_arguments == arguments
       metadata.collection?(expand_cache_key(arguments))
     end
 

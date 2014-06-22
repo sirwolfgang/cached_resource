@@ -42,4 +42,4 @@ Configurations may be set at both a global, gem wide, scope or per `ActiveResour
   - This setting enables the collection based optimzation layer. Rather then requesting just an instance, it will attempt to request an entire collection and update all retrive instances
 - `collection_arguments`
   - Global Default: `[:all]`
-  - This is a list of collection request types. If you wish to unset this option, set it to an empty array (`[]`) rather then `nil`; As this can create undefined behavior in the global configuration.
+  - This is the exploded arguments that return a collection. _Note: The metadata layer will add collections on the fly based on the activerecord return types_
