@@ -11,7 +11,7 @@ module CachedResourceLibrary
       end
 
       def self.fetch(klass)
-        object = CACHE_STORE.fetch(klass.to_s) do
+        object = CachedResourceLibrary.cache_store.fetch(klass.to_s) do
           object = Metadata.new(klass)
           object
         end
@@ -20,7 +20,7 @@ module CachedResourceLibrary
       end
 
       def save
-        CACHE_STORE.write(class_name, self)
+        CachedResourceLibrary.cache_store.write(class_name, self)
       end
 
       def add_collection(collection_key)

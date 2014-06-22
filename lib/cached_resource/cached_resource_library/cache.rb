@@ -7,13 +7,12 @@ module CachedResourceLibrary
       @klass_name = klass_name
       @metadata = Metadata.fetch(klass_name)
       @configuration = configuration
-      @cache = CACHE_STORE
     end
 
     def fetch(*arguments, reload, &block)
       key = expand_cache_key(arguments)
 
-      cached_object = cache.fetch(key, force: reload) do
+      cached_object = CachedResourceLibrary.cache_store.fetch(key, force: reload) do
         object = block.call(*arguments)
 
         if object.is_a? ActiveResource::Collection
@@ -21,7 +20,7 @@ module CachedResourceLibrary
 
           object.each do |instance|
             instance_key = expand_cache_key(instance.id)
-            cache.write(instance_key, instance)
+            CachedResourceLibrary.cache_store.write(instance_key, instance)
             metadata.add_instance(instance_key, key)
             CachedResourceLibrary.log("WRITE #{instance_key}")
           end
@@ -39,30 +38,30 @@ module CachedResourceLibrary
     end
 
     def fetch_with_collection(*arguments, reload, &block)
-      if !cache.exist?(expand_cache_key(arguments)) || reload
+      if !CachedResourceLibrary.cache_store.exist?(expand_cache_key(arguments)) || reload
         fetch(configuration.observed_collection_arguments, true, &block)
       end
       fetch(*arguments, false, &block)
     end
 
     def self.clear
-      CACHE_STORE.clear && CachedResourceLibrary.log('CLEAR ALL')
+      CachedResourceLibrary.cache_store.clear && CachedResourceLibrary.log('CLEAR ALL')
     end
 
     def clear_class
       metadata.instances.each do |key, _|
-        cache.delete(key)
+        CachedResourceLibrary.cache_store.delete(key)
       end
       CachedResourceLibrary.log("CLEAR #{klass_name}")
     end
 
     def clear_instance(object)
       instance_key = expand_cache_key(object.id)
-      cache.delete(instance_key)
+      CachedResourceLibrary.cache_store.delete(instance_key)
 
       if configuration.collection_synchronization?
         metadata.parent_collections(instance_key).each do |collection_key|
-          cache.delete(collection_key)
+          CachedResourceLibrary.cache_store.delete(collection_key)
         end
       end
 
