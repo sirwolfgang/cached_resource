@@ -39,7 +39,7 @@ module CachedResourceLibrary
 
     def fetch_with_collection(*arguments, reload, &block)
       if !CachedResourceLibrary.cache_store.exist?(expand_cache_key(arguments)) || reload
-        fetch(configuration.observed_collection_arguments, true, &block)
+        fetch(*configuration.observed_collection_arguments, true, &block)
       end
       fetch(*arguments, false, &block)
     end

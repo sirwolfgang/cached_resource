@@ -22,7 +22,7 @@ module CachedResourceInterface
 
         CachedResourceLibrary.log("Cache Request #{name}/#{arguments}")
 
-        fetch_without_cache = proc do |request_arguments|
+        fetch_without_cache = proc do |*request_arguments|
           CachedResourceLibrary.log("HTTP Request #{name}/#{request_arguments}")
           find_without_cache(*request_arguments)
         end
