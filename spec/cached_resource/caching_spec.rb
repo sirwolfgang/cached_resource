@@ -45,8 +45,8 @@ describe CachedResource do
     describe '.find' do
 
       it 'returns a resource' do
-        expect(Red.find(1)).to eq(@red_one)
-        expect(Red.find(2)).to eq(@red_two)
+        expect(Red.find(1).attributes.reject { |key, _| key == 'cached_resource_key' }).to eq(@red_one.attributes)
+        expect(Red.find(2).attributes.reject { |key, _| key == 'cached_resource_key' }).to eq(@red_two.attributes)
       end
 
       it 'caches a resource' do
@@ -65,7 +65,9 @@ describe CachedResource do
     describe '.all' do
 
       it 'returns a collection' do
-        expect(Red.all.to_json).to eq(@reds.to_json)
+        reds = Red.all
+        expect(reds[0].attributes.reject { |key, _| key == 'cached_resource_key' }).to eq(@red_one.attributes)
+        expect(reds[1].attributes.reject { |key, _| key == 'cached_resource_key' }).to eq(@red_two.attributes)
       end
 
       it 'caches a collection from cache' do
