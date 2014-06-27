@@ -36,10 +36,10 @@ module CachedResourceLibrary
 
       if cached_object.is_a? ActiveResource::Collection
         cached_object.each do |instance|
-          instance.cached_resource_key = expand_cache_key(instance.id)
+          instance.cache_key = expand_cache_key(instance.id)
         end
       else
-        cached_object.cached_resource_key = key
+        cached_object.cache_key = key
       end
 
       cached_object && CachedResourceLibrary.log("READ #{key}")
@@ -65,10 +65,10 @@ module CachedResourceLibrary
     end
 
     def clear_instance(object)
-      CachedResourceLibrary.cache_store.delete(object.cached_resource_key)
+      CachedResourceLibrary.cache_store.delete(object.cache_key)
 
       if configuration.collection_synchronization?
-        metadata.parent_collections(object.cached_resource_key).each do |collection_key|
+        metadata.parent_collections(object.cache_key).each do |collection_key|
           CachedResourceLibrary.cache_store.delete(collection_key)
         end
       end

@@ -12,7 +12,7 @@ module CachedResourceInterface
 
     module InstanceMethods
       include CachedResource
-      attr_accessor :cached_resource_key
+      attr_accessor :cache_key
     end
 
     module ClassMethods

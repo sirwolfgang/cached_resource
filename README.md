@@ -20,6 +20,7 @@ By default `CachedResource` is loaded into all `ActiveResource` classes and disa
   - `clear_cache`
   - `cache_configuration` (Read Only)
   - `cache_enabled?`
+  - `cache_key`
 
 Internally `CachedResource` also uses the following Modules/Namespaces with the public library classes and interface listed below:
 - `CachedResourceLibrary` (Private)
