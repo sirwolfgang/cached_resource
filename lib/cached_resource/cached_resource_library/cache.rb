@@ -75,6 +75,21 @@ module CachedResourceLibrary
 
       CachedResourceLibrary.log("CLEAR #{object.class.name}/#{object.id}")
     end
+      
+    def update_instance(object, update_hash)
+      update_hash.each do |key, value|
+        object.attributes[key] = value
+      end
+      
+      if configuration.collection_synchronization?
+        metadata.parent_collections(object.cache_key).each do |collection_key|
+          CachedResourceLibrary.cache_store.delete(collection_key)
+        end
+      end
+      
+      CachedResourceLibrary.cache_store.write(object.cache_key, object)
+      CachedResourceLibrary.log("UPDATE #{object.class.name}/#{object.id}")
+    end
 
     def collection?(*arguments)
       return true if configuration.observed_collection_arguments == arguments

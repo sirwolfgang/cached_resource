@@ -14,6 +14,12 @@ module CachedResourceInterface
       include CachedResource
       attr_accessor :cache_key
     end
+    
+    def cache_update(update)
+      cache = CachedResourceLibrary::Cache.new(self.class.name, cache_configuration)
+      cache.update_instance(self, update)
+      
+    end
 
     module ClassMethods
       include CachedResource

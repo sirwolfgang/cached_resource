@@ -125,6 +125,15 @@ describe CachedResource do
 
     end
   end
+  describe 'cache updating' do
+    it 'updates an instance\'s cache' do
+      update_hash = {'id' => 1, 'string' => 'Update'}
+      Red.find(1).cache_update(update_hash)
+
+      expect(Red.find(1).attributes.reject { |key, _| key == 'cache_key' }).to eq(update_hash)
+      expect(ActiveResource::HttpMock.requests.length).to eq(1)
+    end
+  end
   context 'when disabled' do
 
     before(:each) do
@@ -219,6 +228,16 @@ describe CachedResource do
       Red.find(2)
       Red.all
 
+      expect(ActiveResource::HttpMock.requests.length).to eq(2)
+    end
+    
+    it 'cache updating deletes parent caches' do
+      Red.all
+
+      update_hash = {'id' => 1, 'string' => 'Update'}
+      Red.find(1).cache_update(update_hash)
+
+      Red.all
       expect(ActiveResource::HttpMock.requests.length).to eq(2)
     end
   end
