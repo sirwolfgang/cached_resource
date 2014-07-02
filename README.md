@@ -21,6 +21,7 @@ By default `CachedResource` is loaded into all `ActiveResource` classes and disa
   - `cache_configuration` (Read Only)
   - `cache_enabled?`
   - `cache_key`
+  - `cache_update` (Accepts Hash)
 
 Internally `CachedResource` also uses the following Modules/Namespaces with the public library classes and interface listed below:
 - `CachedResourceLibrary` (Private)
@@ -34,7 +35,7 @@ Internally `CachedResource` also uses the following Modules/Namespaces with the 
   - `clear_cache`
   
 ## Configuration
-Configurations may be set at both a global, gem wide, scope or per `ActiveResource` class. All settings on each class default to `nil`. When we encounter a `nil` setting, we defer the configuration to that of the current global settings. This means you can overide class based settings, but still toggle global caching with the `enable`/`disable` functionality as long as the class `enabled` setting is `nil`.
+Configurations may be set at both a global, gem wide, or per `ActiveResource` class. All settings on each class default to `nil`. When we encounter a `nil` setting, we defer the configuration to that of the current global settings. This means you can overide class based settings, but still toggle global caching with the `enable`/`disable` functionality as long as the class `enabled` setting is `nil`.
 
 - `enabled`
   - Global Default: `false`
