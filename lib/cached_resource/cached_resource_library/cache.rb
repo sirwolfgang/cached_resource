@@ -45,6 +45,25 @@ module CachedResourceLibrary
       cached_object && CachedResourceLibrary.log("READ #{key}")
       cached_object
     end
+    
+    def read(*arguments)
+      key = expand_cache_key(arguments)
+      
+      cached_object = CachedResourceLibrary.cache_store.read(key)
+      
+      if cached_object
+        if cached_object.is_a? ActiveResource::Collection
+          cached_object.each do |instance|
+            instance.cache_key = expand_cache_key(instance.id)
+          end
+        else
+          cached_object.cache_key = key
+        end
+      end
+      
+      cached_object && CachedResourceLibrary.log("READ #{key}")
+      cached_object
+    end
 
     def fetch_with_collection(*arguments, reload, &block)
       if !CachedResourceLibrary.cache_store.exist?(expand_cache_key(arguments)) || reload

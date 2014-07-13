@@ -54,6 +54,12 @@ describe CachedResource do
         Red.find(1)
         expect(ActiveResource::HttpMock.requests.length).to eq(1)
       end
+      
+      it 'reads a resource' do
+        expect(Red.cache_read(1)).to eq(nil)
+        Red.find(1)
+        expect(Red.cache_read(1).attributes.reject { |key, _| key == 'cache_key' }).to eq(@red_one.attributes)
+      end
 
       it 'reloads a resource\'s cache' do
         Red.find(1)

@@ -18,7 +18,6 @@ module CachedResourceInterface
     def cache_update(update)
       cache = CachedResourceLibrary::Cache.new(self.class.name, cache_configuration)
       cache.update_instance(self, update)
-      
     end
 
     module ClassMethods
@@ -46,6 +45,17 @@ module CachedResourceInterface
           cache.fetch(*arguments, reload, &fetch_without_cache)
         end
       end
+      
+      def cache_read(*arguments)
+        
+        arguments << {} unless arguments.last.is_a?(Hash)
+        reload = arguments.last.delete(:reload)
+        arguments.pop if arguments.last.empty?
+        
+        cache = CachedResourceLibrary::Cache.new(name, cache_configuration)
+        cache.read(*arguments)
+      end
+      
     end
   end
 end
