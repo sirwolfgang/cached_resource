@@ -1,4 +1,6 @@
 # CachedResource
+## Warning: Not Currently Threadsafe! Do not use
+
 `CachedResource` is designed as a minimal impact drop inplace caching layer for `ActiveResource`. All parts of `ActiveResource` are maintained so that the only changes to your existing codebase that are required to fully leverage the power of `CachedResource` is cache invalidation.
 
 ### Key Features
